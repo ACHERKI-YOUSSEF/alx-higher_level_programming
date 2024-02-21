@@ -2,6 +2,7 @@
 """Reads from standard input and computes metrics
 """
 
+
 def print_stats(size, status_codes):
     """Print accumulated metrics
     """
@@ -26,16 +27,20 @@ if __name__ == "__main__":
             else:
                 count += 1
 
+            line = line.split()
+
             try:
-                line = line.split()
-                if len(line) >= 2:
-                    size += int(line[-1])
-                    if line[-2] in valid_codes:
-                        if status_codes.get(line[-2], -1) == -1:
-                            status_codes[line[-2]] = 1
-                        else:
-                            status_codes[line[-2]] += 1
+                size += int(line[-1])
             except (IndexError, ValueError):
+                pass
+
+            try:
+                if line[-2] in valid_codes:
+                    if status_codes.get(line[-2], -1) == -1:
+                        status_codes[line[-2]] = 1
+                    else:
+                        status_codes[line[-2]] += 1
+            except IndexError:
                 pass
 
         print_stats(size, status_codes)
