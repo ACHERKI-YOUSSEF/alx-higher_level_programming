@@ -5,45 +5,38 @@
 import sys
 from collections import defaultdict
 
-def print_stats(total_size, status_codes):
+def print_stats(size, status_codes):
     """Print accumulated metrics
     """
-    print("File size: {}".format(total_size))
-    for code, count in sorted(status_codes.items()):
-        print("{}: {}".format(code, count))
-
-def parse_line(line, status_codes, valid_codes):
-    """Parse a line and update metrics accordingly
-    """
-    parts = line.split()
-    try:
-        file_size = int(parts[-1])
-        total_size[0] += file_size
-    except (IndexError, ValueError):
-        pass
-
-    try:
-        status_code = parts[-2]
-        if status_code in valid_codes:
-            status_codes[status_code] += 1
-    except IndexError:
-        pass
-
-def main():
-    total_size = [0]  # Using a list for mutable integer
-    status_codes = defaultdict(int)
-    valid_codes = {'200', '301', '400', '401', '403', '404', '405', '500'}
-    line_count = 0
-
-    try:
-        for line in sys.stdin:
-            line_count += 1
-            parse_line(line, status_codes, valid_codes)
-            if line_count % 10 == 0:
-                print_stats(total_size[0], status_codes)
-    except KeyboardInterrupt:
-        print_stats(total_size[0], status_codes)
+    print("File size: {}".format(size))
+    for key in sorted(status_codes):
+        print("{}: {}".format(key, status_codes[key]))
 
 if __name__ == "__main__":
-    main()
+    size = 0
+    status_codes = defaultdict(int)
+    valid_codes = {'200', '301', '400', '401', '403', '404', '405', '500'}
+
+    try:
+        for i, line in enumerate(sys.stdin, 1):  # Using enumerate to count lines
+            line = line.strip()  # Strip whitespace from the line
+            
+            # Splitting line by space and extracting relevant parts
+            parts = line.split()
+            if len(parts) != 7:  # Ensure line has all necessary parts
+                continue
+
+            # Extracting status code and file size
+            status_code = parts[-2]
+            file_size = parts[-1]
+
+            if status_code in valid_codes:  # Check if status code is valid
+                size += int(file_size)  # Accumulate total file size
+                status_codes[status_code] += 1  # Update status code count
+
+            if i % 10 == 0:  # Print stats every 10 lines
+                print_stats(size, status_codes)
+    except KeyboardInterrupt:
+        # Handle keyboard interruption gracefully
+        print_stats(size, status_codes)
 
