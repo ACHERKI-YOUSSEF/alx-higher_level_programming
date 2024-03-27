@@ -1,8 +1,4 @@
--- Use RIGHT JOIN
--- Execute: cat 11-genre_id_all_shows.sql | mysql -hlocalhost -uroot -p hbtn_0d_tvshows
-SELECT b.title, a.genre_id 
-FROM tv_show_genres a 
-RIGHT JOIN tv_shows b 
-ON a.show_id = b.id
-WHERE a.show_id IS NULL
-ORDER BY b.title, a.genre_id ASC;
+-- lists all genres from hbtn_0d_tvshows and displays the number of shows linked to each
+SELECT tv_genres.name AS genre, COUNT(*) AS 'number_shows' FROM tv_genres
+INNER JOIN tv_show_genres ON tv_genres.id = tv_show_genres.genre_id
+GROUP BY genre ORDER BY number_shows DESC;
